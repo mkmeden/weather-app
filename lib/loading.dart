@@ -1,0 +1,97 @@
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:weather_app/weather_service.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart';
+import 'dart:convert';
+import 'package:lottie/lottie.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:weather_app/loading.dart';
+
+class Loading extends StatefulWidget {
+  const Loading({super.key});
+
+  @override
+  State<Loading> createState() => _LoadingState();
+}
+
+class _LoadingState extends State<Loading> {
+
+
+  void callWeather() async{
+
+
+    Weather instance = Weather();
+    String animation = 'clouds.json';
+
+    //getting location coordinates
+
+    Position position = await instance.getLocation();
+
+    //getting city name
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
+    //api call
+    Response response = await get(Uri.parse('https://api.openweathermap.org/data/2.5/weather?lat=${position.latitude}&lon=${position.longitude}&appid=bf90ee2799377574cd0ad9d22d608ad2'));
+    Map data = jsonDecode(response.body);
+
+    //initialising  the variables
+
+      instance.locality = data['name'];
+      instance.temperature = double.parse((data['main']['temp'] - 273.15).toStringAsFixed(2));
+      instance.weatherType = data['weather'][0]['main'];
+
+      switch (instance.weatherType){
+
+        case 'Clouds':{
+          animation = 'clouds.json';
+        }
+        case 'Thunderstorm':{
+          animation = 'thunder.json';
+        }
+
+        case 'Clear':{
+          animation = 'clear.json';
+        }
+
+        case 'Rain':{
+          animation = 'rain.json';
+        }
+
+        case 'Snow' : {
+          animation = 'snow.json';
+        }
+      }
+
+
+    print(data);
+    print('${instance.locality} and ${instance.temperature} and ${instance.weatherType}');
+
+    Navigator.pushReplacementNamed(context, '/home' , arguments: {
+      'locality' : instance.locality ,
+      'temperature' : instance.temperature,
+      'weatherType' : instance.weatherType,
+      'animation' : animation,
+    });
+
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    callWeather();
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor:Color(0xffd9d9d9) ,
+
+      body:Center(
+        child: Lottie.asset('assets/handloading.json'),
+      )
+    );
+  }
+}
