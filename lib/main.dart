@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weather_app/home.dart';
 import 'package:weather_app/loading.dart';
+import 'package:weather_app/search_loading.dart';
 
 void main() {
   runApp(Main());
@@ -24,7 +25,8 @@ class _MainState extends State<Main> {
           initialRoute: '/',
           routes: {
             '/' : (context) =>Loading(),
-            '/home' : (context) =>Home()
+            '/home' : (context) =>Home(),
+            '/searchloading' : (context)=>SearchLoading(),
           },
       ),
       designSize: Size(1080 , 2400),
